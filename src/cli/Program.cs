@@ -10,6 +10,7 @@ class Program
         RootCommand rootCommand = new RootCommand("The CLI Interface for Quick API");
 
         AddNewCommand(rootCommand);
+        AddRunCommand(rootCommand);
 
         rootCommand.Parse(args).Invoke();
     }
@@ -27,6 +28,26 @@ class Program
         command.SetAction(pr =>
         {
             NewCommand.Execute(Path.GetFullPath(pr.GetValue<string>("path")!));
+        });
+
+        command.Arguments.Add(path);
+
+        rootCommand.Add(command);
+    }
+
+    static void AddRunCommand(RootCommand rootCommand)
+    {
+        Command command = new Command("run", "Excecute a Quick API Project");
+
+        var path = new Argument<string>("path")
+        {
+            Description = "Project path",
+            DefaultValueFactory = _ => ".",
+        };
+
+        command.SetAction(pr =>
+        {
+            RunCommand.Execute(Path.GetFullPath(pr.GetValue<string>("path")!));
         });
 
         command.Arguments.Add(path);
