@@ -1,6 +1,8 @@
 ﻿using System.CommandLine;
+using QuickApi.Core.Executors;
 
 namespace QuickApi.Cli;
+
 class Program
 {
     static void Main(string[] args)
@@ -8,7 +10,7 @@ class Program
         RootCommand rootCommand = new RootCommand("The CLI Interface for Quick API");
 
         AddNewCommand(rootCommand);
-        
+
         rootCommand.Parse(args).Invoke();
     }
 
@@ -19,13 +21,12 @@ class Program
         var path = new Argument<string>("path")
         {
             Description = "Where to create the Project",
-            DefaultValueFactory = _ => "."
+            DefaultValueFactory = _ => ".",
         };
 
         command.SetAction(pr =>
         {
-           System.Console.WriteLine(pr.GetValue<string>("path")); 
-           System.Console.WriteLine(Path.GetFullPath(pr.GetValue<string>("path")));
+            NewCommand.Execute(Path.GetFullPath(pr.GetValue<string>("path")!));
         });
 
         command.Arguments.Add(path);
