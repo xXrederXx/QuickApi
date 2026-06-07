@@ -29,7 +29,7 @@ public static class NewCommand
         {
             return Result<bool, string>.Fail("Path must point to a directory not a file");
         }
-        if (Directory.Exists(path) && !Directory.EnumerateFileSystemEntries(path).Any())
+        if (Directory.Exists(path) && Directory.EnumerateFileSystemEntries(path).Any())
         {
             return Result<bool, string>.Fail("Directory must be empty");
         }
@@ -50,7 +50,7 @@ public static class NewCommand
 
     private static void CreateFiles(string path)
     {
-        string projName = Path.GetDirectoryName(path) ?? "MyApi";
+        string projName = new DirectoryInfo(path).Name;
         string fileName = $"{projName}.qaproj";
         File.WriteAllText(Path.Combine(path, fileName), GenerateQaProjTOMLContent(projName));
     }
