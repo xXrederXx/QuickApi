@@ -11,6 +11,7 @@ public enum TokenType
     SLASH,
 
     NEWLINE,
+    TAB,
 
     EOF,
 }
