@@ -7,7 +7,7 @@ public class EndpointAttribute
 {
     public Position StartPos { get; init; }
 
-    public Token<KeywordType> KeyToken { get; init; }
+    public Token<EndpointAttributeType> KeyToken { get; init; }
     public Token<string> ValueToken { get; init; }
 
 }

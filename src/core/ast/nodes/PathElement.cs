@@ -8,7 +8,7 @@ public class PathElement
     public Position StartPos { get; init; }
     public enum PathElementType
     {
-        Absolute, Relative
+        Absolute, Variable
     }
     public PathElementType Type { get; init; }
     public Token<string> Identifier { get; init; }
