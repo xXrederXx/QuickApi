@@ -10,12 +10,13 @@ public class Lexer
     private Position Pos;
     private char currentChar;
 
-    public Lexer(string path)
+    public Lexer(string path, string text)
     {
-        Text = File.ReadAllText(path);
+        Text = text;
 
         byte fileId = FileNameRegistry.GetFileId(path);
         Pos = new Position(0, 0, 0, fileId);
+        currentChar = Pos.Index < Text.Length ? Text[Pos.Index] : StopChar;
     }
 
     public Result<BaseToken[], string> GetTokens()
@@ -34,7 +35,7 @@ public class Lexer
             }
             else
             {
-                return Result<BaseToken[], string>.Fail("Invalid Char: " + currentChar);
+                return Result<BaseToken[], string>.Fail($"Invalid Char: {currentChar} ({(short)currentChar})");
 
             }
         }
