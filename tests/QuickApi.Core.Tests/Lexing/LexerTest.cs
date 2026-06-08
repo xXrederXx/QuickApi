@@ -28,6 +28,17 @@ public class LexerTest
         Assert.Equal(keyword, tok.Value);
     }
 
+    [Theory]
+    [MemberData(nameof(SingleType))]
+    void souldLexSingleType(char input, TokenType type)
+    {
+
+        var res = new Lexer("<test>", $"{input}").GetTokens();
+        Assert.True(res.TryGetValue(out var tokens), res.IsFailed ? res.GetError() : null);
+        Assert.NotEmpty(tokens);
+        Assert.Equal(type, tokens[0].type);
+    }
+
     public static TheoryData<string, KeywordType> KeywordData
     {
         get
@@ -36,6 +47,19 @@ public class LexerTest
             foreach (KeywordType keyword in FastEnum.GetValues<KeywordType>())
             {
                 data.Add(keyword.FastToString(), keyword);
+            }
+            return data;
+        }
+    }
+
+    public static TheoryData<char, TokenType> SingleType
+    {
+        get
+        {
+            TheoryData<char, TokenType> data = new();
+            foreach (KeyValuePair<char, TokenType> kvp in LexerHelper.SingleMap)
+            {
+                data.Add(kvp.Key, kvp.Value);
             }
             return data;
         }
