@@ -29,6 +29,32 @@ public class LexerTest
     }
 
     [Theory]
+    [MemberData(nameof(HttpMethodData))]
+    void souldLexHttpMethods(string input, HttpMethodType keyword)
+    {
+
+        var res = new Lexer("<test>", input).GetTokens();
+        Assert.True(res.TryGetValue(out var tokens), res.IsFailed ? res.GetError() : null);
+        Assert.NotEmpty(tokens);
+        var tok = Assert.IsType<Token<HttpMethodType>>(tokens[0]);
+        Assert.Equal(TokenType.HTTPMETHOD, tok.type);
+        Assert.Equal(keyword, tok.Value);
+    }
+
+    [Theory]
+    [MemberData(nameof(EntityAttributeData))]
+    void souldLexEntityAttribute(string input, EntityAttributeType keyword)
+    {
+
+        var res = new Lexer("<test>", input).GetTokens();
+        Assert.True(res.TryGetValue(out var tokens), res.IsFailed ? res.GetError() : null);
+        Assert.NotEmpty(tokens);
+        var tok = Assert.IsType<Token<EntityAttributeType>>(tokens[0]);
+        Assert.Equal(TokenType.ENTITYATTRIBUTE, tok.type);
+        Assert.Equal(keyword, tok.Value);
+    }
+
+    [Theory]
     [MemberData(nameof(SingleType))]
     void souldLexSingleType(char input, TokenType type)
     {
@@ -45,6 +71,32 @@ public class LexerTest
         {
             TheoryData<string, KeywordType> data = new();
             foreach (KeywordType keyword in FastEnum.GetValues<KeywordType>())
+            {
+                data.Add(keyword.FastToString(), keyword);
+            }
+            return data;
+        }
+    }
+
+    public static TheoryData<string, HttpMethodType> HttpMethodData
+    {
+        get
+        {
+            TheoryData<string, HttpMethodType> data = new();
+            foreach (HttpMethodType keyword in FastEnum.GetValues<HttpMethodType>())
+            {
+                data.Add(keyword.FastToString(), keyword);
+            }
+            return data;
+        }
+    }
+
+    public static TheoryData<string, EntityAttributeType> EntityAttributeData
+    {
+        get
+        {
+            TheoryData<string, EntityAttributeType> data = new();
+            foreach (EntityAttributeType keyword in FastEnum.GetValues<EntityAttributeType>())
             {
                 data.Add(keyword.FastToString(), keyword);
             }

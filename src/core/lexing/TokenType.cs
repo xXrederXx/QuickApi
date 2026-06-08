@@ -4,6 +4,8 @@ public enum TokenType
 {
     IDENTIFIER,
     KEYWORD,
+    HTTPMETHOD,
+    ENTITYATTRIBUTE,
 
     COLON,
     CURLY_LEFT,

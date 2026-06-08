@@ -39,8 +39,9 @@ public class Lexer
             }
             else
             {
-                return Result<BaseToken[], string>.Fail($"Invalid Char: {currentChar} ({(short)currentChar})");
-
+                return Result<BaseToken[], string>.Fail(
+                    $"Invalid Char: {currentChar} ({(short)currentChar})"
+                );
             }
         }
         tokens.Add(new BaseToken(Pos, TokenType.EOF));
@@ -56,11 +57,24 @@ public class Lexer
             identifier += currentChar;
             Advance();
         }
-        bool IsKeyword = FastEnum.TryParse(identifier, out KeywordType keywordType);
+        if (FastEnum.TryParse(identifier, out KeywordType keywordType))
+        {
+            return new Token<KeywordType>(startPos, TokenType.KEYWORD, keywordType);
+        }
+        if (FastEnum.TryParse(identifier, out HttpMethodType httpMethodType))
+        {
+            return new Token<HttpMethodType>(startPos, TokenType.HTTPMETHOD, httpMethodType);
+        }
+        if (FastEnum.TryParse(identifier, out EntityAttributeType entityAttributeType))
+        {
+            return new Token<EntityAttributeType>(
+                startPos,
+                TokenType.ENTITYATTRIBUTE,
+                entityAttributeType
+            );
+        }
 
-        return IsKeyword
-            ? new Token<KeywordType>(startPos, TokenType.KEYWORD, keywordType)
-            : new Token<string>(startPos, TokenType.IDENTIFIER, identifier);
+        return new Token<string>(startPos, TokenType.IDENTIFIER, identifier);
     }
 
     private static bool IsValidIdentifierChar(char c) => char.IsLetterOrDigit(c) || c == '_';
