@@ -24,9 +24,9 @@ public class Lexer
         List<BaseToken> tokens = [];
         while (currentChar is not StopChar)
         {
-            if (currentChar is ':')
+            if (LexerHelper.TryParseSingle(currentChar, out TokenType singleType))
             {
-                tokens.Add(new BaseToken(Pos, TokenType.COLON));
+                tokens.Add(new BaseToken(Pos, singleType));
                 Advance();
             }
             else if (char.IsLetter(currentChar))
