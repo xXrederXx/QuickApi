@@ -42,15 +42,15 @@ public class LexerTest
     }
 
     [Theory]
-    [MemberData(nameof(EntityAttributeData))]
-    void souldLexEntityAttribute(string input, EntityAttributeType keyword)
+    [MemberData(nameof(EndpointAttributeData))]
+    void souldLexEndpointAttribute(string input, EndpointAttributeType keyword)
     {
 
         var res = new Lexer("<test>", input).GetTokens();
         Assert.True(res.TryGetValue(out var tokens), res.IsFailed ? res.GetError() : null);
         Assert.NotEmpty(tokens);
-        var tok = Assert.IsType<Token<EntityAttributeType>>(tokens[0]);
-        Assert.Equal(TokenType.ENTITYATTRIBUTE, tok.type);
+        var tok = Assert.IsType<Token<EndpointAttributeType>>(tokens[0]);
+        Assert.Equal(TokenType.ENDPOINTATTRIBUTE, tok.type);
         Assert.Equal(keyword, tok.Value);
     }
 
@@ -91,12 +91,12 @@ public class LexerTest
         }
     }
 
-    public static TheoryData<string, EntityAttributeType> EntityAttributeData
+    public static TheoryData<string, EndpointAttributeType> EndpointAttributeData
     {
         get
         {
-            TheoryData<string, EntityAttributeType> data = new();
-            foreach (EntityAttributeType keyword in FastEnum.GetValues<EntityAttributeType>())
+            TheoryData<string, EndpointAttributeType> data = new();
+            foreach (EndpointAttributeType keyword in FastEnum.GetValues<EndpointAttributeType>())
             {
                 data.Add(keyword.FastToString(), keyword);
             }

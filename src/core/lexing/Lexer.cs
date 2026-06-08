@@ -65,12 +65,12 @@ public class Lexer
         {
             return new Token<HttpMethodType>(startPos, TokenType.HTTPMETHOD, httpMethodType);
         }
-        if (FastEnum.TryParse(identifier, out EntityAttributeType entityAttributeType))
+        if (FastEnum.TryParse(identifier, out EndpointAttributeType endpointAttributeType))
         {
-            return new Token<EntityAttributeType>(
+            return new Token<EndpointAttributeType>(
                 startPos,
-                TokenType.ENTITYATTRIBUTE,
-                entityAttributeType
+                TokenType.ENDPOINTATTRIBUTE,
+                endpointAttributeType
             );
         }
 

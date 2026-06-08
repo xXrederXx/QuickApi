@@ -5,7 +5,7 @@ public enum TokenType
     IDENTIFIER,
     KEYWORD,
     HTTPMETHOD,
-    ENTITYATTRIBUTE,
+    ENDPOINTATTRIBUTE,
 
     COLON,
     CURLY_LEFT,

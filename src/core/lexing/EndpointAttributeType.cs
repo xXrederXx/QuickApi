@@ -1,6 +1,6 @@
 namespace QuickApi.Core.Lexing;
 
-public enum EntityAttributeType
+public enum EndpointAttributeType
 {
     RETURNS,
 }
