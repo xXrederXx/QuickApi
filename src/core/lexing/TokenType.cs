@@ -6,6 +6,9 @@ public enum TokenType
     KEYWORD,
 
     COLON,
+    CURLY_LEFT,
+    CURLY_RIGHT,
+    SLASH,
 
     NEWLINE,
 
