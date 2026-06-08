@@ -29,6 +29,10 @@ public class Lexer
                 tokens.Add(new BaseToken(Pos, singleType));
                 Advance();
             }
+            else if (currentChar is ' ')
+            {
+                Advance();
+            }
             else if (char.IsLetter(currentChar))
             {
                 tokens.Add(MakeIdentifier());
