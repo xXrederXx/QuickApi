@@ -17,55 +17,89 @@ public class Parser
 
     public void ParseTokens() { }
 
-    private Result<EndpointNode, string> ParseEndpoint()
+    private Result<EndpointNode, Error> ParseEndpoint()
     {
         if (
             currentToken.type is not TokenType.HTTPMETHOD
             || currentToken is not Token<HttpMethodType> methodTok
         )
         {
-            return Result<EndpointNode, string>.Fail("Token must be of type HTTP METHOD");
+            return Result<EndpointNode, Error>.Fail(new ExpectedHTTPMethodError(currentToken.StartPosition));
         }
         Advance();
         return Result<EndpointNode, string>.Fail("Not Implemented");
     }
 
-    private Result<PathNode, string> ParsePath()
+    private Result<PathNode, Error> ParsePath()
     {
         List<PathElement> elements = [];
-        while (currentToken.type is not TokenType.NEWLINE or TokenType.EOF)
+        bool lastWasSlash = false;
+        while (currentToken.type is not (TokenType.NEWLINE or TokenType.EOF))
         {
             if (currentToken.type is TokenType.SLASH)
             {
+                if (lastWasSlash)
+                {
+                    return Result<PathNode, Error>.Fail(new InvalidPathError(currentToken.StartPosition, "A path can not contain 2 Slashes like this //"));
+
+                }
+                lastWasSlash = true;
                 Advance();
                 continue;
             }
+            lastWasSlash = false;
 
             if (currentToken.type is TokenType.CURLY_LEFT)
             {
-                Advance();
-                if (
-                    currentToken.type is not TokenType.IDENTIFIER
-                    || currentToken is not Token<string> identifierTok
-                )
+                var result = ParseVariablePathElement();
+                if (result.TryGetError(out Error error))
                 {
-                    return Result<PathNode, string>.Fail("Token must be of type Identifier");
+                    return Result<PathNode, Error>.Fail(error);
                 }
-                Advance();
-                // symbol }
-                Advance();
-
-                elements.Add(
-                    new PathElement()
-                    {
-                        Type = PathElement.PathElementType.Variable,
-                        Identifier = identifierTok,
-                    }
-                );
-                continue;
+                elements.Add(result.GetValue());
             }
+
+            if (currentToken.type is not TokenType.IDENTIFIER
+                    || currentToken is not Token<string> identifierTok)
+            {
+                return Result<PathNode, Error>.Fail(new ExpectedIdentifierError(currentToken.StartPosition));
+
+            }
+            elements.Add(new PathElement()
+            {
+                Identifier = identifierTok,
+                Type = PathElement.PathElementType.Absolute
+            });
         }
-        return Result<PathNode, string>.Fail("Not Implemented");
+        return Result<PathNode, Error>.Success(new PathNode()
+        {
+            Elements = elements.ToArray()
+        });
+    }
+
+    private Result<PathElement, Error> ParseVariablePathElement()
+    {
+        if (currentToken.type is not TokenType.CURLY_LEFT)
+        {
+            return Result<PathElement, Error>.Fail(new ExpectedSymbolError(currentToken.StartPosition, "{"));
+        }
+        Advance();
+        if (currentToken.type is not TokenType.IDENTIFIER
+                    || currentToken is not Token<string> identifierTok)
+        {
+            return Result<PathElement, Error>.Fail(new ExpectedIdentifierError(currentToken.StartPosition));
+
+        }
+        Advance();
+        if (currentToken.type is not TokenType.CURLY_RIGHT)
+        {
+            return Result<PathElement, Error>.Fail(new ExpectedSymbolError(currentToken.StartPosition, "}"));
+        }
+        return Result<PathElement, Error>.Success(new PathElement()
+        {
+            Identifier = identifierTok,
+            Type = PathElement.PathElementType.Variable
+        });
     }
 
     private void Advance()
