@@ -19,7 +19,7 @@ public class Lexer
         currentChar = Pos.Index < Text.Length ? Text[Pos.Index] : StopChar;
     }
 
-    public Result<BaseToken[], string> GetTokens()
+    public Result<BaseToken[], Error> GetTokens()
     {
         List<BaseToken> tokens = [];
         while (currentChar is not StopChar)
@@ -39,13 +39,13 @@ public class Lexer
             }
             else
             {
-                return Result<BaseToken[], string>.Fail(
-                    $"Invalid Char: {currentChar} ({(short)currentChar})"
+                return Result<BaseToken[], Error>.Fail(
+                    new IllegalCharError(Pos, currentChar)
                 );
             }
         }
         tokens.Add(new BaseToken(Pos, TokenType.EOF));
-        return Result<BaseToken[], string>.Success(tokens.ToArray());
+        return Result<BaseToken[], Error>.Success(tokens.ToArray());
     }
 
     private BaseToken MakeIdentifier()
