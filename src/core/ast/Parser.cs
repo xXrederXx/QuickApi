@@ -24,10 +24,88 @@ public class Parser
             || currentToken is not Token<HttpMethodType> methodTok
         )
         {
-            return Result<EndpointNode, Error>.Fail(new ExpectedHTTPMethodError(currentToken.StartPosition));
+            return Result<EndpointNode, Error>.Fail(
+                new ExpectedHTTPMethodError(currentToken.StartPosition)
+            );
         }
         Advance();
-        return Result<EndpointNode, string>.Fail("Not Implemented");
+        var pathResult = ParsePath();
+        if (pathResult.TryGetError(out Error pathError))
+        {
+            return Result<EndpointNode, Error>.Fail(pathError);
+        }
+
+        if (currentToken.type is not TokenType.NEWLINE)
+        {
+            return Result<EndpointNode, Error>.Fail(
+                new ExpectedNewLineError(currentToken.StartPosition)
+            );
+        }
+        SkipNewLines();
+
+        List<EndpointAttribute> endpointAttributes = [];
+        while (currentToken.type is TokenType.TAB)
+        {
+            Advance();
+
+            if (
+                currentToken.type is not TokenType.ENDPOINTATTRIBUTE
+                || currentToken is not Token<EndpointAttributeType> endpointAttributeType
+            )
+            {
+                return Result<EndpointNode, Error>.Fail(
+                    new ExpectedEndpointAttributeError(currentToken.StartPosition)
+                );
+            }
+
+            Advance();
+
+            if (
+                currentToken.type is not TokenType.IDENTIFIER
+                || currentToken is not Token<string> identifierTok
+            )
+            {
+                return Result<EndpointNode, Error>.Fail(
+                    new ExpectedIdentifierError(currentToken.StartPosition)
+                );
+            }
+
+            Advance();
+
+            if (currentToken.type is not TokenType.NEWLINE)
+            {
+                return Result<EndpointNode, Error>.Fail(
+                    new ExpectedNewLineError(currentToken.StartPosition)
+                );
+            }
+
+            SkipNewLines();
+
+            endpointAttributes.Add(
+                new EndpointAttribute()
+                {
+                    KeyToken = endpointAttributeType,
+                    ValueToken = identifierTok,
+                }
+            );
+        }
+
+        return Result<EndpointNode, Error>.Success(
+            new EndpointNode()
+            {
+                MethodToken = methodTok,
+                PathNode = pathResult.GetValue(),
+                Attributes = endpointAttributes.ToArray(),
+            }
+        );
+    }
+
+    private void SkipNewLines()
+    {
+        while (currentToken.type is TokenType.NEWLINE)
+        {
+            Advance();
+        }
     }
 
     private Result<PathNode, Error> ParsePath()
@@ -40,8 +118,12 @@ public class Parser
             {
                 if (lastWasSlash)
                 {
-                    return Result<PathNode, Error>.Fail(new InvalidPathError(currentToken.StartPosition, "A path can not contain 2 Slashes like this //"));
-
+                    return Result<PathNode, Error>.Fail(
+                        new InvalidPathError(
+                            currentToken.StartPosition,
+                            "A path can not contain 2 Slashes like this //"
+                        )
+                    );
                 }
                 lastWasSlash = true;
                 Advance();
@@ -59,47 +141,58 @@ public class Parser
                 elements.Add(result.GetValue());
             }
 
-            if (currentToken.type is not TokenType.IDENTIFIER
-                    || currentToken is not Token<string> identifierTok)
+            if (
+                currentToken.type is not TokenType.IDENTIFIER
+                || currentToken is not Token<string> identifierTok
+            )
             {
-                return Result<PathNode, Error>.Fail(new ExpectedIdentifierError(currentToken.StartPosition));
-
+                return Result<PathNode, Error>.Fail(
+                    new ExpectedIdentifierError(currentToken.StartPosition)
+                );
             }
-            elements.Add(new PathElement()
-            {
-                Identifier = identifierTok,
-                Type = PathElement.PathElementType.Absolute
-            });
+            elements.Add(
+                new PathElement()
+                {
+                    Identifier = identifierTok,
+                    Type = PathElement.PathElementType.Absolute,
+                }
+            );
         }
-        return Result<PathNode, Error>.Success(new PathNode()
-        {
-            Elements = elements.ToArray()
-        });
+        return Result<PathNode, Error>.Success(new PathNode() { Elements = elements.ToArray() });
     }
 
     private Result<PathElement, Error> ParseVariablePathElement()
     {
         if (currentToken.type is not TokenType.CURLY_LEFT)
         {
-            return Result<PathElement, Error>.Fail(new ExpectedSymbolError(currentToken.StartPosition, "{"));
+            return Result<PathElement, Error>.Fail(
+                new ExpectedSymbolError(currentToken.StartPosition, "{")
+            );
         }
         Advance();
-        if (currentToken.type is not TokenType.IDENTIFIER
-                    || currentToken is not Token<string> identifierTok)
+        if (
+            currentToken.type is not TokenType.IDENTIFIER
+            || currentToken is not Token<string> identifierTok
+        )
         {
-            return Result<PathElement, Error>.Fail(new ExpectedIdentifierError(currentToken.StartPosition));
-
+            return Result<PathElement, Error>.Fail(
+                new ExpectedIdentifierError(currentToken.StartPosition)
+            );
         }
         Advance();
         if (currentToken.type is not TokenType.CURLY_RIGHT)
         {
-            return Result<PathElement, Error>.Fail(new ExpectedSymbolError(currentToken.StartPosition, "}"));
+            return Result<PathElement, Error>.Fail(
+                new ExpectedSymbolError(currentToken.StartPosition, "}")
+            );
         }
-        return Result<PathElement, Error>.Success(new PathElement()
-        {
-            Identifier = identifierTok,
-            Type = PathElement.PathElementType.Variable
-        });
+        return Result<PathElement, Error>.Success(
+            new PathElement()
+            {
+                Identifier = identifierTok,
+                Type = PathElement.PathElementType.Variable,
+            }
+        );
     }
 
     private void Advance()
