@@ -8,7 +8,12 @@ public abstract class Error(int errorCode, string message, Position startPos)
     protected Position StartPos => startPos;
 
     public override string ToString() =>
-        $"{FileNameRegistry.GetFileName(startPos.FileId)}({startPos.Line + 1}, {startPos.Column + 1}): ERROR YS{errorCode:D4} {message}";
+        $"{FileNameRegistry.GetFileName(startPos.FileId)}({startPos.Line + 1}, {startPos.Column + 1}): ERROR QA{errorCode:D4} {message}";
+
+    public static implicit operator string(Error self)
+    {
+        return self.ToString();
+    }
 }
 
 // This is NoError, used instead of error = null
