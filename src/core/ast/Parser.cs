@@ -13,6 +13,7 @@ public class Parser
     public Parser(BaseToken[] tokens)
     {
         Tokens = tokens;
+        Advance();
     }
 
     public void ParseTokens() { }
@@ -112,7 +113,7 @@ public class Parser
     {
         List<PathElement> elements = [];
         bool lastWasSlash = false;
-        while (currentToken.type is not (TokenType.NEWLINE or TokenType.EOF))
+        while (currentToken.type != TokenType.NEWLINE && currentToken.type != TokenType.EOF)
         {
             if (currentToken.type is TokenType.SLASH)
             {
@@ -139,6 +140,7 @@ public class Parser
                     return Result<PathNode, Error>.Fail(error);
                 }
                 elements.Add(result.GetValue());
+                continue;
             }
 
             if (
@@ -150,6 +152,7 @@ public class Parser
                     new ExpectedIdentifierError(currentToken.StartPosition)
                 );
             }
+            Advance();
             elements.Add(
                 new PathElement()
                 {
@@ -186,6 +189,7 @@ public class Parser
                 new ExpectedSymbolError(currentToken.StartPosition, "}")
             );
         }
+        Advance();
         return Result<PathElement, Error>.Success(
             new PathElement()
             {
