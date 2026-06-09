@@ -12,5 +12,10 @@ public class PathElement
     }
     public PathElementType Type { get; init; }
     public Token<string> Identifier { get; init; }
+
+    public override string ToString()
+    {
+        return Type == PathElementType.Absolute ? Identifier.ToString() : $"{{{Identifier}}}";
+    }
 }
 

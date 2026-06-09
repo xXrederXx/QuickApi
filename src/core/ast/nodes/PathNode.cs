@@ -15,5 +15,9 @@ public class PathNode
 
     public PathElement[] Elements { get; init; }
 
+    public override string ToString()
+    {
+        return string.Join("/", Elements);
+    }
 }
 

@@ -13,4 +13,9 @@ public class EndpointNode
     public required Token<HttpMethodType> MethodToken { get; init; }
     public required PathNode PathNode { get; init; }
     public required EndpointAttribute[] Attributes { get; init; }
+
+    public override string ToString()
+    {
+        return $"{MethodToken} {PathNode}\n" + string.Join("\n", Attributes);
+    }
 }

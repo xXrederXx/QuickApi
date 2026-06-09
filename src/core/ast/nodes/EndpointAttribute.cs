@@ -10,5 +10,8 @@ public class EndpointAttribute
     public Token<EndpointAttributeType> KeyToken { get; init; }
     public Token<string> ValueToken { get; init; }
 
+    public override string ToString()
+    {
+        return $"\t{KeyToken} {ValueToken}";
+    }
 }
-
