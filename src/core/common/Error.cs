@@ -1,3 +1,5 @@
+using QuickApi.Core.Lexing;
+
 namespace QuickApi.Core.Common;
 
 public abstract class Error(int errorCode, string message, Position startPos)
@@ -23,3 +25,20 @@ public class ErrorNull : Error
 public class IllegalCharError(Position startPos, char illegalChar)
     : Error(0001, $"Illegal character '{illegalChar}'", startPos)
 { }
+
+public class ExpectedHTTPMethodError(Position startPos)
+    : Error(0001, $"Expected HTTP Method", startPos)
+{ }
+
+public class ExpectedSymbolError(Position startPos, string symbol)
+    : Error(0002, $"Expected Symbol '{symbol}'", startPos)
+{ }
+
+public class ExpectedIdentifierError(Position startPos)
+    : Error(0003, $"Expected an Identifer", startPos)
+{ }
+
+public class InvalidPathError(Position startPos, string reason)
+    : Error(0004, reason, startPos)
+{ }
+
