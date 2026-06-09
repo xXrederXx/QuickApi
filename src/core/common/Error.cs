@@ -10,9 +10,9 @@ public abstract class Error(int errorCode, string message, Position startPos)
     public override string ToString() =>
         $"{FileNameRegistry.GetFileName(startPos.FileId)}({startPos.Line + 1}, {startPos.Column + 1}): ERROR QA{errorCode:D4} {message}";
 
-    public static implicit operator string(Error self)
+    public static implicit operator string(Error? self)
     {
-        return self.ToString();
+        return self is null ? "NULL ERROR" : self.ToString();
     }
 }
 
