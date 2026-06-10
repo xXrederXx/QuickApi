@@ -73,6 +73,10 @@ public class Lexer
                 endpointAttributeType
             );
         }
+        if (FastEnum.TryParse(identifier, out EntityFieldDataType entityFieldDataType))
+        {
+            return new Token<EntityFieldDataType>(startPos, TokenType.ENTITYFIELDDATATYPE, entityFieldDataType);
+        }
 
         return new Token<string>(startPos, TokenType.IDENTIFIER, identifier);
     }
