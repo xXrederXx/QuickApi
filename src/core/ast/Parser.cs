@@ -18,6 +18,92 @@ public class Parser
 
     public void ParseTokens() { }
 
+    public Result<EntityNode, Error> ParseEntity()
+    {
+        if (
+            currentToken.type is not TokenType.KEYWORD
+            || currentToken is not Token<KeywordType> keywordTok
+            || keywordTok.Value != KeywordType.ENTITY
+        )
+        {
+            return Result<EntityNode, Error>.Fail(
+                new ExpectedKeywordError(currentToken.StartPosition, KeywordType.ENTITY)
+            );
+        }
+
+        Position startPos = currentToken.StartPosition;
+
+        Advance();
+
+        if (
+            currentToken.type is not TokenType.IDENTIFIER
+            || currentToken is not Token<string> identifierTok
+        )
+        {
+            return Result<EntityNode, Error>.Fail(
+                new ExpectedIdentifierError(currentToken.StartPosition)
+            );
+        }
+
+        if (currentToken.type is not TokenType.NEWLINE)
+        {
+            return Result<EntityNode, Error>.Fail(
+                new ExpectedNewLineError(currentToken.StartPosition)
+            );
+        }
+        SkipNewLines();
+
+        List<EntityField> entityAttributes = [];
+        while (currentToken.type is TokenType.TAB)
+        {
+            Advance();
+
+            if (
+                currentToken.type is not TokenType.IDENTIFIER
+                || currentToken is not Token<string> attributeIdentifierTok
+            )
+            {
+                return Result<EntityNode, Error>.Fail(
+                    new ExpectedIdentifierError(currentToken.StartPosition)
+                );
+            }
+
+            Advance();
+
+            if (
+                currentToken.type is not TokenType.ENTITYFIELDDATATYPE
+                || currentToken is not Token<EntityFieldDataType> dataTypeTok
+            )
+            {
+                return Result<EntityNode, Error>.Fail(
+                    new ExpectedIdentifierError(currentToken.StartPosition)
+                );
+            }
+
+            if (currentToken.type is not TokenType.NEWLINE)
+            {
+                return Result<EntityNode, Error>.Fail(
+                    new ExpectedNewLineError(currentToken.StartPosition)
+                );
+            }
+
+            SkipNewLines();
+
+            entityAttributes.Add(
+                new EntityField() { Identifier = attributeIdentifierTok, DataType = dataTypeTok }
+            );
+        }
+
+        return Result<EntityNode, Error>.Success(
+            new EntityNode()
+            {
+                Identifier = identifierTok,
+                StartPos = startPos,
+                EntityFields = entityAttributes.ToArray(),
+            }
+        );
+    }
+
     private Result<EndpointNode, Error> ParseEndpoint()
     {
         if (
