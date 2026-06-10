@@ -46,3 +46,6 @@ public class ExpectedNewLineError(Position startPos)
 
 public class ExpectedEndpointAttributeError(Position startPos)
     : Error(0006, $"Expected Endpoint Attribute", startPos) { }
+
+public class ExpectedKeywordError(Position startPos, KeywordType keyword)
+    : Error(0006, $"Expected the Keyword '{keyword}'", startPos) { }
