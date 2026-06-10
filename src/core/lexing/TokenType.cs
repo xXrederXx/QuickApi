@@ -6,6 +6,7 @@ public enum TokenType
     KEYWORD,
     HTTPMETHOD,
     ENDPOINTATTRIBUTE,
+    ENTITYFIELDDATATYPE,
 
     COLON,
     CURLY_LEFT,
